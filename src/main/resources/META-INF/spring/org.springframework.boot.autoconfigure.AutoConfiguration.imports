@@ -1,1 +1,2 @@
 co.il.attendance.security.AttendanceSecurityAutoConfiguration
+co.il.attendance.logging.AttendanceLoggingAutoConfiguration

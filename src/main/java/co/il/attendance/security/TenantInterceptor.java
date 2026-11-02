@@ -2,6 +2,7 @@ package co.il.attendance.security;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,6 +15,7 @@ import java.util.Map;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import static co.il.attendance.logging.LogContext.PATH_TENANT_ID;
 import static co.il.attendance.security.SecurityConstants.FORBIDDEN;
 import static co.il.attendance.security.SecurityConstants.TENANT_ID;
 import static org.apache.commons.lang3.BooleanUtils.isFalse;
@@ -32,10 +34,9 @@ public class TenantInterceptor implements HandlerInterceptor {
             log.warn("Request rejected: no tenant in path {}", request.getRequestURI());
             throw new AccessDeniedException(FORBIDDEN);
         }
+        MDC.put(PATH_TENANT_ID, pathTenantId);
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (JwtClaimsResolver.isPlatformAdmin(auth)) {
-            log.info("Platform admin {} acting on tenant {}: {} {}", auth.getName(), pathTenantId,
-                    request.getMethod(), request.getRequestURI());
             return true;
         }
         String jwtTenantId = JwtClaimsResolver.currentTenantId(auth);
