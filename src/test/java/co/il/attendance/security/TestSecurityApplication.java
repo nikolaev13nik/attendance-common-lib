@@ -5,7 +5,6 @@ import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import org.slf4j.MDC;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -74,10 +73,22 @@ public class TestSecurityApplication {
             return "no tenant";
         }
 
-        @PreAuthorize("hasRole('ADMINISTRATOR')")
+        @AdminOnly
         @GetMapping("/test/tenant/{tenantId}/admin")
         String admin(@PathVariable Integer tenantId) {
             return "admin " + tenantId;
+        }
+
+        @AdminOrSelf
+        @GetMapping("/test/tenant/{tenantId}/user/{idUser}")
+        String user(@PathVariable Integer tenantId, @PathVariable Integer idUser) {
+            return "user " + idUser;
+        }
+
+        @PlatformAdminOnly
+        @GetMapping("/test/platform")
+        String platform() {
+            return "platform";
         }
 
         @GetMapping("/test/open")
